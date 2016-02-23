@@ -156,5 +156,15 @@ document.getElementById("brush").addEventListener('change',function(){
     y:null
   };
 })
+document.getElementById("save").addEventListener('click',function(){
+  // save canvas image as data url (png format by default)
+  var dataURL = canvas.toDataURL();
+  // set canvasImg image src to dataURL
+  // so it can be saved as an image
+  //document.getElementById('canvasImg').src = dataURL;
+  window.open(dataURL,"Your Drawing");
+},false);
+// save canvas image as data url (png format by default)
+
 
 });
