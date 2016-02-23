@@ -13,7 +13,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
   ctx.fill();
 
   //global variables
-  var lineWidth = 10;
+  var brushShape = document.getElementById("brush").value;
+  var lineWidth;
+  if(isNaN(document.getElementById("number").value)){
+    lineWidth = 10;
+  }else {
+    lineWidth = document.getElementById("number").value;
+  }
   var lineColor = document.getElementById("color").value;
   var mouseDown = false;
   var lastRecordedPosition = {
@@ -32,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
       var draw = {
         color: lineColor,
         width: lineWidth,
+        shape: brushShape,
         x: pos.x,
         y: pos.y
       };
@@ -42,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
           drawPath(draw);
         }
       }
-      //draw a circle at the current position
+      //draw a shape at the current position
       drawStroke(draw);
     }
   }
@@ -50,11 +57,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
 //this function draws the main "brush"
 function drawStroke(draw){
   ctx.fillStyle = draw.color;
-  ctx.beginPath();
-  ctx.arc(draw.x,draw.y,draw.width/2,0,2*Math.PI);
-  ctx.fill();
+  if(draw.shape=="circle"){
+    ctx.beginPath();
+    ctx.arc(draw.x,draw.y,draw.width/2,0,2*Math.PI);
+    ctx.fill();
+  }else if (draw.shape=="square") {
+    ctx.fillRect(draw.x-draw.width/2,draw.y-draw.width/2,draw.width,draw.width);
+    //ctx.fill();
+  }
   lastRecordedPosition.x = draw.x;
   lastRecordedPosition.y = draw.y;
+
+  //if calling from click function then unset lastRecordedPosition values
+  if(draw.click){
+    lastRecordedPosition.x = null;
+    lastRecordedPosition.y = null;
+  }
 }
 
 //this function is used to draw a line for connecting points
@@ -91,14 +109,25 @@ document.getElementById("color").addEventListener('change',function(){
 //check if the mouse is currently down
 document.getElementById("canvas").addEventListener('mousedown',function(e){
   mouseDown = true;
+},false);
+
+document.getElementById("canvas").addEventListener('click',function(e){
+  lastRecordedPosition = {
+    x:null,
+    y:null
+  };
   var pos = getMousePos(canvas, e);
   var draw = {
+    width: lineWidth,
     color: lineColor,
+    shape: brushShape,
     x: pos.x,
-    y: pos.y
-  }
+    y: pos.y,
+    click: true
+  };
   drawStroke(draw);
 },false);
+
 
 //check if the mouse releases anywhere in the window
 window.addEventListener('mouseup',function(e){
@@ -108,5 +137,24 @@ window.addEventListener('mouseup',function(e){
     y:null
   };
 });
+
+//add event listener to the clear button
+document.getElementById("clear").addEventListener('click',function(){
+  if(confirm("Are you sure you want to erase everything?")){
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.fill();
+  }
+})
+
+//add event listener to the brush selector
+document.getElementById("brush").addEventListener('change',function(){
+  brushShape = this.value;
+  lastRecordedPosition = {
+    x:null,
+    y:null
+  };
+})
 
 });

@@ -13,3 +13,11 @@ body{
 .controls{
   margin-bottom: 10px;
 }
+
+.controls #number{
+  width: 40px;
+}
+
+button{
+  background: white;
+}
