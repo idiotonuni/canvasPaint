@@ -1,0 +1,14 @@
+canvas{
+  border: 1px solid black;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+body{
+  background-color: #e5e5e5;
+  text-align: center;
+}
+.controls{
+  margin-bottom: 10px;
+}
