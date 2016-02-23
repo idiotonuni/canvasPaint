@@ -174,6 +174,7 @@ document.getElementById("save").addEventListener('click',function(){
 
 
 document.getElementById("canvas").addEventListener('touchstart',function(e){
+  e.preventDefault();
   var pos = getMousePos(canvas, e);
   var draw = {
     width: lineWidth,
