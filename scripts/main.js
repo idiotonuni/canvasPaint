@@ -27,40 +27,37 @@ document.addEventListener("DOMContentLoaded", function(event) {
     //only draw if mouseDown == true
     if(mouseDown){
       var pos = getMousePos(canvas, e);
-      posx = pos.x;
-      posy = pos.y;
-      if(lastRecordedPosition.x!=null){
-        if(Math.abs(posx-lastRecordedPosition.x)>4||Math.abs(posy-lastRecordedPosition.y)>4){
-          ctx.beginPath();
-          ctx.moveTo(lastRecordedPosition.x,lastRecordedPosition.y);
-          ctx.lineTo(posx,posy);
-          ctx.lineWidth = lineWidth;
-          ctx.strokeStyle = lineColor;
-          ctx.stroke();
-        }
-      }
       var draw = {
         color: lineColor,
-        x: posx,
-        y: posy
+        width: lineWidth,
+        x: pos.x,
+        y: pos.y
+      };
+      if(lastRecordedPosition.x!=null){
+        if(Math.abs(draw.x-lastRecordedPosition.x)>lineWidth*.4||Math.abs(draw.y-lastRecordedPosition.y)>lineWidth*.4){
+          drawPath(draw);
+        }
       }
-      /*ctx.fillStyle = lineColor;
-      ctx.beginPath();
-      ctx.arc(posx,posy,lineWidth/2,0,2*Math.PI);
-      ctx.fill();
-      lastRecordedPosition.x = posx;
-      lastRecordedPosition.y = posy;*/
-      //ctx.fillRect(posx, posy, 4, 4);
+      drawStroke(draw);
     }
   }
 
 function drawStroke(draw){
   ctx.fillStyle = draw.color;
   ctx.beginPath();
-  ctx.arc(draw.posx,draw.posy,lineWidth/2,0,2*Math.PI);
+  ctx.arc(draw.x,draw.y,draw.width/2,0,2*Math.PI);
   ctx.fill();
-  lastRecordedPosition.x = draw.posx;
-  lastRecordedPosition.y = draw.posy;
+  lastRecordedPosition.x = draw.x;
+  lastRecordedPosition.y = draw.y;
+}
+
+function drawPath(draw){
+  ctx.beginPath();
+  ctx.moveTo(lastRecordedPosition.x,lastRecordedPosition.y);
+  ctx.lineTo(draw.x,draw.y);
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = lineColor;
+  ctx.stroke();
 }
 
   function getMousePos(canvas, evt) {
@@ -86,14 +83,12 @@ document.getElementById("color").addEventListener('change',function(){
 document.getElementById("canvas").addEventListener('mousedown',function(e){
   mouseDown = true;
   var pos = getMousePos(canvas, e);
-  posx = pos.x;
-  posy = pos.y;
-  ctx.fillStyle = lineColor;
-  ctx.beginPath();
-  ctx.arc(posx,posy,lineWidth/2,0,2*Math.PI);
-  ctx.fill();
-  lastRecordedPosition.x = posx;
-  lastRecordedPosition.y = posy;
+  var draw = {
+    color: lineColor,
+    x: pos.x,
+    y: pos.y
+  }
+  drawStroke(draw);
 },false);
 
 window.addEventListener('mouseup',function(e){
