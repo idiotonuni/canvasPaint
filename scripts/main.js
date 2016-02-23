@@ -156,6 +156,7 @@ document.getElementById("brush").addEventListener('change',function(){
     y:null
   };
 })
+
 document.getElementById("save").addEventListener('click',function(){
   // save canvas image as data url (png format by default)
   var dataURL = canvas.toDataURL();
