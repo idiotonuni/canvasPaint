@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     if(mouseDown){
       //get current cursor position inside the canvas
       var pos = getMousePos(canvas, e);
+      //console.log(pos);
 
       //create a draw object, I don't really think this is strictly necesary but I did it anyway
       var draw = {
@@ -88,10 +89,18 @@ function drawPath(draw){
 //this function finds the current cursor position in the canvas
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
+  if(evt.clientX){
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }else if(evt.targetTouches){
+    console.log(evt.targetTouches);
+    return {
+      x: evt.targetTouches[0].clientX - rect.left,
+      y: evt.targetTouches[0].clientY - rect.top
+    };
+  }
 }
 
 //add mousemove listener to draw when moving
@@ -112,10 +121,6 @@ document.getElementById("canvas").addEventListener('mousedown',function(e){
 },false);
 
 document.getElementById("canvas").addEventListener('click',function(e){
-  lastRecordedPosition = {
-    x:null,
-    y:null
-  };
   var pos = getMousePos(canvas, e);
   var draw = {
     width: lineWidth,
@@ -167,5 +172,39 @@ document.getElementById("save").addEventListener('click',function(){
 },false);
 // save canvas image as data url (png format by default)
 
+
+document.getElementById("canvas").addEventListener('touchstart',function(e){
+  var pos = getMousePos(canvas, e);
+  var draw = {
+    width: lineWidth,
+    color: lineColor,
+    shape: brushShape,
+    x: pos.x,
+    y: pos.y,
+    click: true
+  };
+  drawStroke(draw);
+  mouseDown = true;
+},false);
+
+
+//check if the mouse releases anywhere in the window
+window.addEventListener('touchend',function(e){
+  mouseDown = null;
+  lastRecordedPosition = {
+    x:null,
+    y:null
+  };
+});
+
+window.addEventListener('touchcancel',function(e){
+  mouseDown = null;
+  lastRecordedPosition = {
+    x:null,
+    y:null
+  };
+});
+
+window.addEventListener('touchmove', draw, false);
 
 });
