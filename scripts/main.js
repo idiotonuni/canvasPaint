@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function(event) {
   var canvas = document.createElement("canvas");
+  canvas.setAttribute("id", "canvas");
+  //console.log(canvas);
   var ctx = canvas.getContext("2d");
   canvas.width = (window.innerWidth)*0.8;
   canvas.height = 500;
@@ -10,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   ctx.fillStyle = "white";
   ctx.fill();
 
-  console.log(window);
+  //console.log(window);
 
   //handle keyboard controls
   var lineWidth = 10;
@@ -21,26 +23,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
     y:null
   };
 
-  window.addEventListener('mousedown',function(e){
-    mouseDown = true;
-    //console.log(e);
-  },false);
-
-  window.addEventListener('mouseup',function(e){
-    mouseDown = null;
-    lastRecordedPosition = {
-      x:null,
-      y:null
-    };
-    //console.log(e);
-  });
-
   function draw(e){
+    //only draw if mouseDown == true
     if(mouseDown){
       var pos = getMousePos(canvas, e);
       posx = pos.x;
       posy = pos.y;
-      ctx.fillStyle = lineColor;
       if(lastRecordedPosition.x!=null){
         if(Math.abs(posx-lastRecordedPosition.x)>4||Math.abs(posy-lastRecordedPosition.y)>4){
           ctx.beginPath();
@@ -51,21 +39,28 @@ document.addEventListener("DOMContentLoaded", function(event) {
           ctx.stroke();
         }
       }
+      var draw = {
+        color: lineColor,
+        x: posx,
+        y: posy
+      }
+      /*ctx.fillStyle = lineColor;
       ctx.beginPath();
       ctx.arc(posx,posy,lineWidth/2,0,2*Math.PI);
       ctx.fill();
       lastRecordedPosition.x = posx;
-      lastRecordedPosition.y = posy;
+      lastRecordedPosition.y = posy;*/
       //ctx.fillRect(posx, posy, 4, 4);
     }
   }
 
-  window.addEventListener('mousemove', draw, false);
-
-  function detectLeftButton(evt) {
-    evt = evt || window.event;
-    var button = evt.which || evt.button;
-    return button == 1;
+function drawStroke(draw){
+  ctx.fillStyle = draw.color;
+  ctx.beginPath();
+  ctx.arc(draw.posx,draw.posy,lineWidth/2,0,2*Math.PI);
+  ctx.fill();
+  lastRecordedPosition.x = draw.posx;
+  lastRecordedPosition.y = draw.posy;
 }
 
   function getMousePos(canvas, evt) {
@@ -74,8 +69,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
       x: evt.clientX - rect.left,
       y: evt.clientY - rect.top
     };
-}
+  }
 
+//add mousemove listener to draw when moving
+window.addEventListener('mousemove', draw, false);
+
+//change color and line width variables
 document.getElementById("number").addEventListener('change',function(){
   lineWidth = this.value;
 })
@@ -83,5 +82,26 @@ document.getElementById("number").addEventListener('change',function(){
 document.getElementById("color").addEventListener('change',function(){
   lineColor = this.value;
 })
+
+document.getElementById("canvas").addEventListener('mousedown',function(e){
+  mouseDown = true;
+  var pos = getMousePos(canvas, e);
+  posx = pos.x;
+  posy = pos.y;
+  ctx.fillStyle = lineColor;
+  ctx.beginPath();
+  ctx.arc(posx,posy,lineWidth/2,0,2*Math.PI);
+  ctx.fill();
+  lastRecordedPosition.x = posx;
+  lastRecordedPosition.y = posy;
+},false);
+
+window.addEventListener('mouseup',function(e){
+  mouseDown = null;
+  lastRecordedPosition = {
+    x:null,
+    y:null
+  };
+});
 
 });
