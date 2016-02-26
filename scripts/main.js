@@ -195,12 +195,13 @@ document.getElementById("save").addEventListener('click',function(){
 },false);
 // save canvas image as data url (png format by default)
 
-
+//add touch event handlers
 canvas.addEventListener("touchstart", handleStart, false);
 canvas.addEventListener("touchend", handleEnd, false);
 canvas.addEventListener("touchcancel", handleCancel, false);
 canvas.addEventListener("touchmove", handleMove, false);
 
+//touch event functions
 function handleStart(evt) {
   evt.preventDefault();
   var touches = evt.changedTouches;
@@ -219,12 +220,6 @@ function handleStart(evt) {
       click: true
     }
     drawStroke(draw);
-    /*
-    ctx.beginPath();
-    ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
-    ctx.fillStyle = color;
-    ctx.fill();
-    */
     console.log("touchstart:" + i + ".");
   }
 }
@@ -238,7 +233,7 @@ function handleMove(evt) {
     var idx = ongoingTouchIndexById(touches[i].identifier);
 
     if (idx >= 0) {
-      console.log("continuing touch "+idx);
+      //console.log("continuing touch "+idx);
 
       var draw = {
         x: touches[i].pageX - canvasDimensions.left,
@@ -249,20 +244,9 @@ function handleMove(evt) {
         color: color,
         shape: brushShape
       }
-
       drawStroke(draw);
-
-      //ctx.beginPath();
-      //console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");");
-      //ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
-      //console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
-      //ctx.lineTo(touches[i].pageX, touches[i].pageY);
-      //ctx.lineWidth = lineWidth;
-      //ctx.strokeStyle = color;
-      //ctx.stroke();
-
       ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
-      console.log(".");
+      //console.log(".");
     } else {
       console.log("can't figure out which touch to continue");
     }
