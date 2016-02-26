@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     x:null,
     y:null
   };
+  var canvasDimensions = canvas.getBoundingClientRect();
+  //array for storing touches
+  var ongoingTouches = new Array();
 
   //called from the mousemove event
   function draw(e){
@@ -74,6 +77,26 @@ function drawStroke(draw){
     lastRecordedPosition.x = null;
     lastRecordedPosition.y = null;
   }
+  if(draw.previousX){
+    var path = {
+      startX: draw.x,
+      startY: draw.y,
+      endX: draw.previousX,
+      endY: draw.previousY,
+      color: draw.color,
+      width: draw.width
+    }
+    drawMultiPath(path);
+  }
+}
+
+function drawMultiPath(path){
+  ctx.beginPath();
+  ctx.moveTo(path.startX,path.startY);
+  ctx.lineTo(path.endX,path.endY);
+  ctx.lineWidth = path.width;
+  ctx.strokeStyle = path.color;
+  ctx.stroke();
 }
 
 //this function is used to draw a line for connecting points
@@ -173,43 +196,145 @@ document.getElementById("save").addEventListener('click',function(){
 // save canvas image as data url (png format by default)
 
 
-document.getElementById("canvas").addEventListener('touchstart',function(e){
-  e.preventDefault();
-  var pos = getMousePos(canvas, e);
-  var draw = {
-    width: lineWidth,
-    color: lineColor,
-    shape: brushShape,
-    x: pos.x,
-    y: pos.y,
-    click: true
-  };
-  drawStroke(draw);
-  mouseDown = true;
-},false);
+canvas.addEventListener("touchstart", handleStart, false);
+canvas.addEventListener("touchend", handleEnd, false);
+canvas.addEventListener("touchcancel", handleCancel, false);
+canvas.addEventListener("touchmove", handleMove, false);
+
+function handleStart(evt) {
+  evt.preventDefault();
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    //console.log("touchstart:" + i + "...");
+    ongoingTouches.push(copyTouch(touches[i]));
+    var color = colorForTouch(touches[i]);
+
+    var draw = {
+      x: touches[i].pageX - canvasDimensions.left,
+      y: touches[i].pageY - canvasDimensions.top,
+      width: lineWidth,
+      color: color,
+      shape: brushShape,
+      click: true
+    }
+    drawStroke(draw);
+    /*
+    ctx.beginPath();
+    ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);  // a circle at the start
+    ctx.fillStyle = color;
+    ctx.fill();
+    */
+    console.log("touchstart:" + i + ".");
+  }
+}
+
+function handleMove(evt) {
+  evt.preventDefault();
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    var color = colorForTouch(touches[i]);
+    var idx = ongoingTouchIndexById(touches[i].identifier);
+
+    if (idx >= 0) {
+      console.log("continuing touch "+idx);
+
+      var draw = {
+        x: touches[i].pageX - canvasDimensions.left,
+        y: touches[i].pageY - canvasDimensions.top,
+        previousX: ongoingTouches[idx].pageX - canvasDimensions.left,
+        previousY: ongoingTouches[idx].pageY - canvasDimensions.top,
+        width: lineWidth,
+        color: color,
+        shape: brushShape
+      }
+
+      drawStroke(draw);
+
+      //ctx.beginPath();
+      //console.log("ctx.moveTo(" + ongoingTouches[idx].pageX + ", " + ongoingTouches[idx].pageY + ");");
+      //ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+      //console.log("ctx.lineTo(" + touches[i].pageX + ", " + touches[i].pageY + ");");
+      //ctx.lineTo(touches[i].pageX, touches[i].pageY);
+      //ctx.lineWidth = lineWidth;
+      //ctx.strokeStyle = color;
+      //ctx.stroke();
+
+      ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
+      console.log(".");
+    } else {
+      console.log("can't figure out which touch to continue");
+    }
+  }
+}
 
 
-//check if the mouse releases anywhere in the window
-window.addEventListener('touchend',function(e){
-  mouseDown = null;
-  lastRecordedPosition = {
-    x:null,
-    y:null
-  };
-});
+function handleEnd(evt) {
+  evt.preventDefault();
+  console.log("touchend");
+  var touches = evt.changedTouches;
 
-window.addEventListener('touchcancel',function(e){
-  mouseDown = null;
-  lastRecordedPosition = {
-    x:null,
-    y:null
-  };
-});
+  for (var i = 0; i < touches.length; i++) {
+    var color = colorForTouch(touches[i]);
+    var idx = ongoingTouchIndexById(touches[i].identifier);
 
-window.addEventListener('touchmove', draw, false);
+    if (idx >= 0) {
+      var draw = {
+        x: touches[i].pageX - canvasDimensions.left,
+        y: touches[i].pageY - canvasDimensions.top,
+        previousX: ongoingTouches[idx].pageX - canvasDimensions.left,
+        previousY: ongoingTouches[idx].pageY - canvasDimensions.top,
+        width: lineWidth,
+        color: color,
+        shape: brushShape
+      }
 
-document.getElementById("canvas").addEventListener('touchmove',function(e){
-  e.preventDefault();
-},false);
+      drawStroke(draw);
+      ongoingTouches.splice(idx, 1);  // remove it; we're done
+    } else {
+      console.log("can't figure out which touch to end");
+    }
+  }
+}
+
+function handleCancel(evt) {
+  evt.preventDefault();
+  console.log("touchcancel.");
+  var touches = evt.changedTouches;
+
+  for (var i = 0; i < touches.length; i++) {
+    ongoingTouches.splice(i, 1);  // remove it; we're done
+  }
+}
+
+
+function copyTouch(touch) {
+  return { identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
+}
+
+function colorForTouch(touch) {
+  var r = touch.identifier % 16;
+  var g = Math.floor(touch.identifier / 3) % 16;
+  var b = Math.floor(touch.identifier / 7) % 16;
+  r = r.toString(16); // make it a hex digit
+  g = g.toString(16); // make it a hex digit
+  b = b.toString(16); // make it a hex digit
+  var color = "#" + r + g + b;
+  console.log("color for touch with identifier " + touch.identifier + " = " + color);
+  return color;
+}
+
+function ongoingTouchIndexById(idToFind) {
+  for (var i = 0; i < ongoingTouches.length; i++) {
+    var id = ongoingTouches[i].identifier;
+
+    if (id == idToFind) {
+      return i;
+    }
+  }
+  return -1;    // not found
+}
+
 
 });
