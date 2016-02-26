@@ -95,7 +95,7 @@ function getMousePos(canvas, evt) {
       y: evt.clientY - rect.top
     };
   }else if(evt.targetTouches){
-    console.log(evt.targetTouches);
+    //console.log(evt.targetTouches);
     return {
       x: evt.targetTouches[0].clientX - rect.left,
       y: evt.targetTouches[0].clientY - rect.top
@@ -207,5 +207,9 @@ window.addEventListener('touchcancel',function(e){
 });
 
 window.addEventListener('touchmove', draw, false);
+
+document.getElementById("canvas").addEventListener('touchmove',function(e){
+  e.preventDefault();
+},false);
 
 });
