@@ -209,13 +209,12 @@ function handleStart(evt) {
   for (var i = 0; i < touches.length; i++) {
     //console.log("touchstart:" + i + "...");
     ongoingTouches.push(copyTouch(touches[i]));
-    var color = colorForTouch(touches[i]);
 
     var draw = {
       x: touches[i].pageX - canvasDimensions.left,
       y: touches[i].pageY - canvasDimensions.top,
       width: lineWidth,
-      color: color,
+      color: lineColor,
       shape: brushShape,
       click: true
     }
@@ -229,7 +228,6 @@ function handleMove(evt) {
   var touches = evt.changedTouches;
 
   for (var i = 0; i < touches.length; i++) {
-    var color = colorForTouch(touches[i]);
     var idx = ongoingTouchIndexById(touches[i].identifier);
 
     if (idx >= 0) {
@@ -241,7 +239,7 @@ function handleMove(evt) {
         previousX: ongoingTouches[idx].pageX - canvasDimensions.left,
         previousY: ongoingTouches[idx].pageY - canvasDimensions.top,
         width: lineWidth,
-        color: color,
+        color: lineColor,
         shape: brushShape
       }
       drawStroke(draw);
@@ -260,7 +258,6 @@ function handleEnd(evt) {
   var touches = evt.changedTouches;
 
   for (var i = 0; i < touches.length; i++) {
-    var color = colorForTouch(touches[i]);
     var idx = ongoingTouchIndexById(touches[i].identifier);
 
     if (idx >= 0) {
@@ -270,7 +267,7 @@ function handleEnd(evt) {
         previousX: ongoingTouches[idx].pageX - canvasDimensions.left,
         previousY: ongoingTouches[idx].pageY - canvasDimensions.top,
         width: lineWidth,
-        color: color,
+        color: lineColor,
         shape: brushShape
       }
 
@@ -281,17 +278,6 @@ function handleEnd(evt) {
     }
   }
 }
-
-function handleCancel(evt) {
-  evt.preventDefault();
-  console.log("touchcancel.");
-  var touches = evt.changedTouches;
-
-  for (var i = 0; i < touches.length; i++) {
-    ongoingTouches.splice(i, 1);  // remove it; we're done
-  }
-}
-
 
 function copyTouch(touch) {
   return { identifier: touch.identifier, pageX: touch.pageX, pageY: touch.pageY };
