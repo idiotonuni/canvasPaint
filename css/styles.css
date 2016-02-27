@@ -208,3 +208,10 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
+.hidden{
+  display: none;
+}
+button{
+  padding: 3px;
+  border-radius: 4px;
+}

@@ -17,8 +17,12 @@
   <script src="scripts/main.js"></script>
 </head>
 <body>
+  <script src="scripts/jscolor.min.js"></script>
   <div class="controls">
-    <input type="color" id="color">
+    <button class="jscolor {valueElement:'color', onFineChange:'setTextColor(this)', hash:true}">
+  		Color
+  	</button>
+    <input id="color" class="hidden" value="#000000">
     <select id="brush">
      <option value="circle">Circle</option>
      <option value="square">Square</option>
