@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   //console.log(canvas);
   var ctx = canvas.getContext("2d");
   canvas.width = (window.innerWidth)*0.8;
-  canvas.height = 500;
+  canvas.height = (window.innerHeight)*0.78;
   document.body.appendChild(canvas);
 
   ctx.beginPath();
