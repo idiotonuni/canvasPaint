@@ -26,9 +26,22 @@ document.addEventListener("DOMContentLoaded", function(event) {
     x:null,
     y:null
   };
+  var lastRecordedPositionForLine = {
+    x: 0,
+    y: 0
+  };
   var canvasDimensions = canvas.getBoundingClientRect();
   //array for storing touches
   var ongoingTouches = new Array();
+  //handle keyboard controls
+  var keysDown = {};
+
+  //setting brush preview
+  document.getElementById("brush-preview").style.height = lineWidth+"px";
+  document.getElementById("brush-preview").style.width = lineWidth+"px";
+  document.getElementById("brush-preview").style.backgroundColor = lineColor;
+  if(brushShape=="circle")
+    document.getElementById("brush-preview").style.borderRadius = "50%";
 
   //called from the mousemove event
   function draw(e){
@@ -69,14 +82,24 @@ function drawStroke(draw){
     ctx.fillRect(draw.x-draw.width/2,draw.y-draw.width/2,draw.width,draw.width);
     //ctx.fill();
   }
-  lastRecordedPosition.x = draw.x;
-  lastRecordedPosition.y = draw.y;
-
-  //if calling from click function then unset lastRecordedPosition values
   if(draw.click){
-    lastRecordedPosition.x = null;
-    lastRecordedPosition.y = null;
+    if(16 in keysDown){
+      var path = {
+        startX: draw.x,
+        startY: draw.y,
+        endX: lastRecordedPositionForLine.x,
+        endY: lastRecordedPositionForLine.y,
+        width: draw.width,
+        color: draw.color
+      }
+      drawMultiPath(path);
+    }
+  }else{
+    lastRecordedPosition.x = draw.x;
+    lastRecordedPosition.y = draw.y;
   }
+
+
   if(draw.previousX){
     var path = {
       startX: draw.x,
@@ -132,10 +155,14 @@ window.addEventListener('mousemove', draw, false);
 //change color and line width variables
 document.getElementById("number").addEventListener('change',function(){
   lineWidth = this.value;
+  //console.log(document.getElementById("brush-preview"));
+  document.getElementById("brush-preview").style.height = lineWidth+"px";
+  document.getElementById("brush-preview").style.width = lineWidth+"px";
 })
 
 document.getElementById("color").addEventListener('change',function(){
   lineColor = this.value;
+  document.getElementById("brush-preview").style.backgroundColor = this.value;
 })
 
 //check if the mouse is currently down
@@ -160,6 +187,8 @@ document.getElementById("canvas").addEventListener('click',function(e){
 //check if the mouse releases anywhere in the window
 window.addEventListener('mouseup',function(e){
   mouseDown = null;
+  lastRecordedPositionForLine.x = lastRecordedPosition.x;
+  lastRecordedPositionForLine.y = lastRecordedPosition.y;
   lastRecordedPosition = {
     x:null,
     y:null
@@ -179,6 +208,12 @@ document.getElementById("clear").addEventListener('click',function(){
 //add event listener to the brush selector
 document.getElementById("brush").addEventListener('change',function(){
   brushShape = this.value;
+  if(this.value=="square"){
+    document.getElementById("brush-preview").style.borderRadius = "0px";
+  }else if(this.value=="circle"){
+    document.getElementById("brush-preview").style.borderRadius = "50%";
+  }
+
   lastRecordedPosition = {
     x:null,
     y:null
@@ -306,5 +341,18 @@ function ongoingTouchIndexById(idToFind) {
   return -1;    // not found
 }
 
+
+//key event handler
+addEventListener("keydown",function(e){
+  keysDown[e.keyCode] = true;
+  console.log("shift down")
+  e.preventDefault();
+}, false);
+
+addEventListener("keyup",function(e){
+  delete keysDown[e.keyCode];
+  console.log("shift up")
+  e.preventDefault();
+}, false);
 
 });

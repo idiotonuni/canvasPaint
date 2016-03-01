@@ -10,13 +10,34 @@ body{
   background-color: #e5e5e5;
   text-align: center;
 }
-.controls{
+.controls-container{
   margin-bottom: 10px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+}
+.controls{
+  width: 70%;
+  display: inline-block;
 }
 
 button{
   background: white;
 }
+
+.brush-preview-container{
+  width: 100px;
+  height: 100px;
+  margin-left: 10%;
+}
+.brush-preview{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-block;
+}
+
 
 input[type=range] {
   -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
