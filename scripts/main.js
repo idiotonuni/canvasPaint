@@ -345,14 +345,14 @@ function ongoingTouchIndexById(idToFind) {
 //key event handler
 addEventListener("keydown",function(e){
   keysDown[e.keyCode] = true;
-  console.log("shift down")
-  e.preventDefault();
+  if(e.keyCode==16)
+    e.preventDefault();
 }, false);
 
 addEventListener("keyup",function(e){
   delete keysDown[e.keyCode];
-  console.log("shift up")
-  e.preventDefault();
+  if(e.keyCode==16)
+    e.preventDefault();
 }, false);
 
 });
