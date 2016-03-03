@@ -93,6 +93,11 @@ function drawStroke(draw){
         color: draw.color
       }
       drawMultiPath(path);
+      lastRecordedPositionForLine.x = draw.x;
+      lastRecordedPositionForLine.y = draw.y;
+    }else{
+      lastRecordedPositionForLine.x = draw.x;
+      lastRecordedPositionForLine.y = draw.y;
     }
   }else{
     lastRecordedPosition.x = draw.x;
@@ -187,8 +192,6 @@ document.getElementById("canvas").addEventListener('click',function(e){
 //check if the mouse releases anywhere in the window
 window.addEventListener('mouseup',function(e){
   mouseDown = null;
-  lastRecordedPositionForLine.x = lastRecordedPosition.x;
-  lastRecordedPositionForLine.y = lastRecordedPosition.y;
   lastRecordedPosition = {
     x:null,
     y:null
@@ -316,9 +319,7 @@ function handleEnd(evt) {
 
 function handleCancel(evt) {
   evt.preventDefault();
-  console.log("touchcancel.");
   var touches = evt.changedTouches;
-
   for (var i = 0; i < touches.length; i++) {
     ongoingTouches.splice(i, 1);  // remove it; we're done
   }
